@@ -1,0 +1,36 @@
+- name: Installing Kibana and Nginx dependencies ...
+  apt: name={{ item }} state=present
+  with_items:
+    - nginx
+    - apache2-utils
+  notify:
+    - Restart nginx
+
+- name: Install passlib (required for writing htpasswd file)...
+  apt:
+    name: python3-passlib
+    state: installed
+
+- name: Create htpasswd file to restrict access to Kibana web interface...
+  htpasswd:
+    name: "{{ USERNAME_FOR_VAULT }}"
+    password: "{{ KIBANA_PASSWORD }}"
+    path: /etc/nginx/htpasswd.users
+
+- name: Copy default file of nginx file
+  template:
+    src: templates/default.j2
+    dest: /etc/nginx/sites-available/default
+  when: ansible_service_mgr == "systemd"
+  become: yes
+
+- name: Copy default file of nginx file
+  template:
+    src: templates/default.j2
+    dest: /etc/nginx/sites-enabled/default
+  when: ansible_service_mgr == "systemd"
+  become: yes
+  notify:
+    - Restart nginx
+
+
