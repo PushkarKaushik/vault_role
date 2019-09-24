@@ -67,11 +67,17 @@
     src: config.json
     dest: '/etc/vault'
 
+- name: Copy vault s3 backend file
+  template:
+    src: templates/s3vault.json.j2
+    dest: /volumes/config/s3vault.json
+  when: ansible_service_mgr == "systemd"
+  become: yes
  
-- name: Copy s3vault.json file for s3 as backend setup
-  copy:
-    src: s3vault.json
-    dest: '/volumes/config/'
+  #- name: Copy s3vault.json file for s3 as backend setup
+  #copy:
+  #  src: s3vault.json
+  #  dest: '/volumes/config/'
 
 
 - name: Copy vault service file
